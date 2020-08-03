@@ -8,6 +8,16 @@ output: html_document
 
 Here is a list of resources that I have curated on the topics of vectorization, data manipulation with dplyr and the tidyverse, and a few other assorted gems.
 
+## General Data Manipulation
+
+[The Base R Cheat Sheet](https://rstudio.com/wp-content/uploads/2016/10/r-cheat-sheet-3.pdf) is an incredibly handy desk reference on how to do things like:
+
+* sort a vector
+* write a for loop
+* index through a vector
+* write a conditional (if/then) statement
+
+
 ## Vectorization
 
 1. [This is a great open resource from Alyssa Frazee](http://alyssafrazee.com/2014/01/29/vectorization.html) on "vectorization"
@@ -24,6 +34,8 @@ Here is a list of resources that I have curated on the topics of vectorization, 
 
 2. [A dplyr discussion from UBC's STAT 545 class](https://stat545.com/dplyr-intro.html). Side note: If you really want to geek-out on R-stuff you should definitely follow [Jenny Bryan on the Twitter](https://twitter.com/jennybryan?lang=en).
 
+3. [Data Wrangling with dplyr Cheat Sheet](https://rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf). Another incredibly handy desk reference for folks working in the dplyr environment.
+
 ## The Tidyverse
 
 [Hadley Wickham's Primer on Tidyr](https://blog.rstudio.com/2014/07/22/introducing-tidyr/)
@@ -39,4 +51,8 @@ Here is a list of resources that I have curated on the topics of vectorization, 
 ## Misc
 
 1. [WDI: An R Package for getting World Bank Development Indicator Data](https://www.r-project.org/nosvn/pandoc/WDI.html)
+
+
+
+
 

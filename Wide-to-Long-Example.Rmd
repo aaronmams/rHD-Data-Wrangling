@@ -1,0 +1,114 @@
+---
+title: "Wide-to-Long-Example"
+author: "aaron mamula"
+date: "8/3/2020"
+output: html_document
+---
+
+# {.tabset .tabset-fade .tabset-pills}
+
+Social Scientists (in my observation) typically prefer "Long" data formats over wide data formats. Many of the methods contained in the popular R data manipulation ecosystem known as "the Tidyverse" also tend to prefer long data.
+
+This lesson provides an example of converting wide data to long data using the ```gather()``` method from the ```tidyr```. After converting the data from wide to long, we do some additional manipulations to illustrate more features of the ```dplyr``` package.
+
+## Lesson Summary
+
+* "long" data are often easier to use than "wide" data ([Simon Ejdemyr lists 3 compelling reasons why long data are better](https://sejdemyr.github.io/r-tutorials/basics/wide-and-long/))
+* dplyr and tidyr have a lot of nice/user-friendly methods both for organzing data in "long" form and working with data in "long" form. 
+
+
+## Check Dependencies
+
+```{r include=F}
+# Load necessary packages
+library(dplyr)
+library(data.table)
+library(tidyr)
+library(here)
+```
+
+## Long Data v. Wide Data Discussion
+
+Suppose we have a panel data set containing annual GDP/captia for a set of countries for 2019,2018, and 2017. A wide form representation of such data would look like this: 
+
+```{r}
+# GDP/capita by country 2019,2018,2017
+Luxembourg <- c(113196,116640,106806)
+Switzerland <- c(83716,82797,80101)
+Norway <- c(77975,81697,75295)
+USA <- c(65111,62795,60055)
+
+# World Rank
+Luxembourg.rank <- c(1,3,3)
+Switzerland.rank <- c(2,4,4)
+Norway.rank <- c(3,5,5)
+USA.rank <- c(7,10,9)
+
+gdp.wide <- data.frame(countries=c("Luxembourg","Switzerland","Norway","USA"),
+                       gdp_pc_2019=c(Luxembourg[1],Switzerland[1],Norway[1],USA[1]),
+                       gdp_pc_2018=c(Luxembourg[2],Switzerland[2],Norway[2],USA[2]),
+                       gdp_pc_2017=c(Luxembourg[3],Switzerland[3],Norway[3],USA[3]))
+gdp.wide
+```
+
+A long form representation of these data would look like this:
+
+```{r}
+gdp.long <- data.frame(countries=c(rep("Luxembourg",3),rep("Switzerland",3),rep("Norway",3),rep("US",3)),
+                       year=c(rep(c(2019,2018,2017),4)),
+                       gdp.pc=c(Luxembourg,Switzerland,Norway,USA))
+gdp.long
+```
+
+As I said in the intro, long is generally better than wide for most data analysis. I don't feel a huge moral imperative to prove this to you right now. I'm pretty confident that you'll come to the same conclusion after taking a few runs at your own data in R.
+
+## Wide-to-long conversion with real data
+
+So in the last section I said that long is better than wide. So here is an example of some data that came to me in wide form and I used ```tidyr``` and ```dplyr``` methods to wrangle it into long form then clean it a bit.
+
+The data come from the [World Bank Development Indicators](https://databank.worldbank.org/reports.aspx?source=world-development-indicators#). They are the "School Enrollment, primary (gross), gender parity index", WDI Series Code "SE.ENR.PRIM.FM.ZS". A summary of the data series relevance as an indicator of development [is provided here](https://www.indexmundi.com/facts/indicators/SE.ENR.PRIM.FM.ZS).
+
+I have retrieved the data from 2000-2019 for 6 Regional Aggregates of Countries. I have included these data here and we can view them in thier original wide form: 
+
+```{r}
+gpi <- read.csv(here('data/WorldBank_GPI_2000-2018.csv'))
+gpi
+```
+
+To wrangle these data into long form we can use the ```tidyr``` method ```gather()```. The first two values supplied to the ```gather()``` function are the key-value pairs that we want to use to orient the long form data. The final argument includes the column names of the original wide form data that we want to collapse.  
+
+```{r}
+library(tidyr)
+gpi.long <- gpi %>% gather(year, gpi, X2000..YR2000.:X2019..YR2019.)
+head(gpi.long)
+```
+
+## Clean the new "Long" data 
+
+Now use dplyr methods to clean up the data frame:
+
+```{r}
+library(dplyr)
+
+# the year variable is formatted in a funky way but we can use some string methods to get it into a
+# regular integer form. Note that X2000..YR2000 if pretty formulaic. If we just remove the leading "X"" then
+# take the next 4 characters in the string we'll have the 4-digit year.
+
+gpi.long <- gpi.long %>% mutate(year=as.numeric(substr(gsub("X","",year),1,4)))
+gpi.long
+
+```
+
+## Lesson Review
+
+The wide form data had 6 observations (corresponding to 6 unique Country Aggregates) on 24 variables (corresponding to 20 years of GPI data + 4 identifier columns (Country.Name, Country.Code, Series.Name, Series.Code).
+
+```{r}
+str(gpi)
+```
+
+The long form data have 120 observations (6 Country Aggregates X 20 years of data) on 6 variables (the orginal 4 indentifiers + the key-value pairs year & gpi):
+
+```{r}
+str(gpi.long)
+```

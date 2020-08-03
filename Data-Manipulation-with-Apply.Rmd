@@ -1,0 +1,271 @@
+---
+title: "Data-Manipulation-with-Apply"
+author: "aaron mamula"
+date: "8/3/2020"
+output: html_document
+---
+# {.tabset .tabset-fade .tabset-pills}
+
+## Check Dependencies
+
+```{r}
+# Load necessary packages
+library(dplyr)
+library(data.table)
+library(tidyr)
+library(curl)
+library(nnet)
+```
+
+## The Apply Function Family {.tabset}
+
+### apply with vectors/matricies 
+
+First, I'm reprinting this quote [from Alyssa Frazee](http://alyssafrazee.com/2014/01/29/vectorization.html) because I love it:
+
+>apply “is not vectorization, it is loop-hiding.”
+
+That probably doesn't mean much to you right now...but it will.
+
+In compiled languages like C or Fortran it's pretty common to alter data using loops. In the last lesson we discussed how R's vectorized orientation avoids using "for loops"" for many operations. For example, getting the natural log of all the numbers in a vector in R is a simple matter of feeding the vector into the log() function:
+
+```{r}
+# vector of uniform random numbers between 0,1
+x <- runif(10)
+names(x) <- c(1:length(x))
+x  
+```
+
+```{r}
+# natural log of this vector
+log.x <- log(x)
+names(log.x) <- paste("log.x",c(1:length(x)),sep="")
+log.x
+```
+
+There is another way to accomplish the task of calculating the natural log of each number in a vector. We can use the ```apply``` function. The ```apply``` function works very intuitively in that it applies a function to an object. In this case we want to apply the function ```log()``` to each element in the vector x:
+
+```{r}
+sapply(x,FUN=log)
+
+```
+
+Ok, I did something a little cheeky there and used ```sapply()```. In R, ```apply()``` is actually a family of functions including ```apply()```, ```lapply()```, ```sapply()```, ```tapply()```, ```mapply()```, and probably a few more. These flavors have the same basic features and they differ somewhat in the data structures they expect as inputs and the data structures they return as outputs.
+
+Strictly speaking the ```apply()``` function is meant for use with with multi-dimensional arrays, matricies, or data frames. Example: taking the natural log of each element in a matrix:
+
+```{r}
+X <- matrix(c(0,1,2,3),nr=2,nc=2)
+X
+# Natural log of the elements of the matrix X
+apply(X,1,FUN=log)
+```
+
+If you plan on using the ```apply()``` family, it's important to understand how results are returned. The function ```apply()``` accepts the following inputs in the following order:
+
+1. the object to operate on (X)
+2. the margin to apply the function over (1 = rows, 2 = columns)
+3. the function to be applied
+
+Note that, in the example above, we applied the ```log()``` function across the rows of the object ```X```. 
+
+```{r}
+X[1,]
+log(X[1,])
+apply(X,1,log)
+```
+
+To understand why this output is the way it is, let's look at R's default behavior for organizing matricies:
+
+```{r}
+matrix(c(log(X[1,]),log(X[2,])),nr=2,nc=2)
+```
+
+In this case the vector ```c(log(X[1,]),log(X[2,]))``` evaluates to ```(-Inf,0.6931472,0,1.098612)```. When we tell R to organize this 4 element vector as a 2X2 matrix, R fills in the blanks column-wise.
+
+Recall that the original matrix was 
+
+```{r} 
+X 
+``` 
+
+So it's a little confusing to have the output from the log() values show up transposed from the original matrix. There are two ways to deal with this. The first way is to use the ```apply()``` function with the ```margin``` argument set to 2. This will organize the output in the same way as the original matrix.
+
+```{r}
+# print X
+X
+# print the log() of the 1st row of X
+log(X[1,])
+# apply the log() function column-wise to the matrix X
+apply(X,2,log)
+
+```
+
+And a second, possibly more intuitive way to do this would be to abandon the ```apply()``` function entirely and just use R's naturally "vectorized" orientation.
+
+```{r}
+# print the matrix X to remind us what it looks like
+X
+# print the element-wise log() of the values in the matrix X
+log(X)
+```
+
+I realize it's probably frustrating to go through the whole exercise of using ```apply()``` to transform values in a matrix when the operation could have been done in a much simplier way. I don't really have any grand justification for doing it other than I think it's important to see how things work.
+
+### apply with data frames
+
+The ```apply()``` functions work with data frames as well as vectors, matricies, and lists. However, when I'm working with real-life data, I almost never use the ```apply()``` offerings. I don't have anything against them, I just haven't in 12 years encountered a really compelling use-case for using ```apply()``` with data frames.
+
+If you wanted to say turn all of your data values into natural logs you could do that using ```apply()```:
+
+
+```{r}
+# create a data frame
+z <- data.frame(score1=runif(10,50,100),score2=runif(10,50,100),score3=runif(10,50,100))
+# print that data frame
+z
+```
+```{r}
+# change all the values in the data frame to natural logs.
+apply(z,2,log)
+```
+
+This is potentially useful but, again, just not something that I find myself doing very often. More often, I have some data and I need to transform particular columns while leaving others unchanged. Example:
+
+```{r}
+# create another data frame
+z <- data.frame(student=c(1:10),gender=c(sample(c("M","F"),10,replace=T)),Math=runif(10,50,100),Reading=runif(10,50,100),Science=runif(10,50,100))
+# print the data frame
+z
+```
+
+A simple way to log just the test scores while leaving student idenfier and gender unchanged is:
+
+```{r}
+z$Math <- log(z$Math) # create a new column in the data frame
+
+z$Reading <- log(z$Reading) # create another new column in the data frame
+
+z$Science <- log(z$Science) # create a 3rd new column in the data frame
+
+z # print the data frame again
+```
+
+The knock on this approach is that it's not elegant, maybe a little inefficient, and potentially not generalizable if we have like 20 more columns of different subject scores.
+
+Those things are all true and we could absolutely write a really cool function to efficiently find all the test score columns and log them...but:
+
+1. at this point in the course we probably don't need to let the perfect be the enemy of the good
+
+2. for the vast majority of social science research applications that I've seen, hyper-obsession with super-efficient code is something that involves substantial work and yeilds uncertain payoffs. 
+
+## A Non-Trivial Example
+
+You've probably noticed that I'm far less enthusiastic about R's ```apply()``` functions than other introductory R resources you've likely encountered. In an attempt to avoid imparting too many of my biases onto you, I'm going to illustrate here a use case where the apply function really shines.
+
+### Problem:
+
+Use the 5-Fold Cross Validation technique to gauge the predictive accuracy of a multinomial logit classifier
+
+### Data + Model
+
+The ```iris``` data set contain 150 observations on different types of irises. The data contain characteristics of each sample (sepal length, sepal width, petal length, and petal width) and the species of each.
+
+```{r}
+head(iris)
+```
+
+We will use a [multinomial logit model](https://stats.idre.ucla.edu/r/dae/multinomial-logistic-regression/) to classify each observation on the basis of the observed characteristics. 
+
+### Cross Validation
+
+K-Fold Cross Validation is a method to gauge the predictive accuracy of a model by spliting the data into K folds. The technique proceeds iteratively as follows: in each iteration the data are split into a training set and a testing set. The training set contains $k-1$ folds and the testing set contains the remaining fold. The training set is used to estimate the model, which is then used to predict the target values in the testing set. The predictive accuracy is recorded and the algorithm proceeds to the next iteration where a new $k-1$ folds are used to define the training set. The model is re-estimated using the new training set and used to generate predictions for the target values in the new testing set. 
+
+### 5-Fold CV as a Loop
+
+K-Fold Cross Validation is a repetitive process. Each iteration of the algorithm contains the same basic steps. The primary difference between iterations is the partitions of the original data that define the training and testing sets.
+
+K-Fold Cross Validation can be summarized according to the following steps:
+
+0. assign each observation in the data set to a fold
+1. set fold = $k_1$
+2. define testing set as all observations in fold $k_1$
+3. define training set as all observation not in fold $k_1$
+4. estimate the model using the training set
+5. use the model to predict the target values in the testing set
+6. calculate measure of predictive accuracy
+7. set fold = $k_2$ 
+8. repeat 2-6
+
+The algorithm lends itself pretty naturally to execution in a "for loop." 
+
+```{r}
+# create folds
+
+# shuffle the data
+data(iris)
+myiris<-iris[sample(nrow(iris)),]
+
+#Create 5 equally size folds
+myiris$fold <- cut(seq(1,nrow(myiris)),breaks=5,labels=FALSE)
+
+# set species "virginica" to be the reference 
+myiris <- myiris %>% mutate(Species=relevel(Species,ref="virginica"))
+
+```
+
+```{r}
+# create an empty list to hold the values
+pct.correct <- list()
+
+# use a loop to run the model 5 times (one for each testing data fold) and collect the results
+for(i in 1:5){
+  testing.data <- myiris[myiris$fold==i,]
+  training.data <- myiris[myiris$fold!=i,]
+  model1 <- multinom(Species ~ Sepal.Length + Sepal.Width +
+     Petal.Length + Petal.Width, data=training.data, trace=F)
+  testing.data$sps.pred <- predict(model1,newdata=testing.data,type="class")
+  pct.correct[[i]] <- sum(testing.data$Species==testing.data$sps.pred)/nrow(testing.data)
+}
+#print the number of observations in the testing data correctly predicted in each iteration
+pct.correct
+```
+
+### 5-Fold CV with Apply
+
+In the case of 5-Fold Cross Validation, an alternative to a for loop is to use one of R's ```apply``` functions. In this case I'm using ```lapply()``` and the basic steps are:
+
+1. write a single function that accepts a single integer input and, based on that input:
+
+* create the training and testing data
+* estimates the model
+* generates predictions
+
+2. use ```lapply()``` to apply the custom function to each element of an integer vector defining the number of folds.
+
+
+```{r}
+# A function to train a multinomial logit classifier using training and testing data
+
+iris.class <- function(testing.fold){
+
+testing <- myiris[myiris$fold==testing.fold,]
+training <- myiris[myiris$fold!=testing.fold,]
+
+model1 <- multinom(Species ~ Sepal.Length + Sepal.Width +
+Petal.Length + Petal.Width, data=training, trace=F)
+testing$sps.pred <- predict(model1,newdata=testing,type="class")
+
+# percent correctly predicted
+sum(testing$Species==testing$sps.pred)/nrow(testing)
+}
+```
+
+```{r}
+# now if we apply the function above to each unique value of "folds" we get the 5-fold CV results
+unlist(lapply(unique(myiris$fold),iris.class))
+
+
+```
+
+For the purposes of this exercise, it's important to note that the output from the 5-Fold CV using ```apply()``` is the same as the output obtained from the 5-Fold CV implementation using a for loop.

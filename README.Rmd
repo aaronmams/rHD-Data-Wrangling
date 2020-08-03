@@ -13,11 +13,13 @@ This lesson has 2 overarching objectives:
 
 ## Instructions
 
-This lesson uses three .Rmd files contained in the project. The three .Rmd files are functionally independent and self-contained but the suggested order of operations (for anyone working through these lessons independently) is as follows: 
+This lesson uses several .Rmd files contained in the project. The three .Rmd files are functionally independent and self-contained but the suggested order of operations (for anyone working through these lessons independently) is as follows: 
 
 1. ```Data-Types-and-Structures.Rmd```. 
-2. ```Data-Wrangling-with-Apply.Rmd```.
-3. ```Data-Wrangling-with-dplyr.Rmd```.
+2. ```Data-Manipulation-with-Apply.Rmd```.
+3. ```Data-Manipulation-with-dplyr.Rmd```.
+4. ```Wide-to-Long-Example.Rmd```
+5. ```Resources```
 
 ## Contents {.tabset}
 

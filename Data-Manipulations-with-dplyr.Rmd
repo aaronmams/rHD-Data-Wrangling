@@ -1,0 +1,163 @@
+---
+title: "Data-Wrangling-with-dplyr"
+author: "aaron mamula"
+date: "8/3/2020"
+output: html_document
+---
+
+# {.tabset .tabset-fade .tabset-pills}
+
+
+## Data Operations w/dplyr
+
+[dplyr](https://dplyr.tidyverse.org/) is a data manipulation library. There are lots of reasons to use it and I think it's pretty uncontroversial to say it's one of the most popular data science packages available.  I use it almost exclusively for data manipulation because I find the syntax really intuitive.  
+
+There are also probably some good reasons not to use dplyr. However, everyone I know uses either the dplyr or data.table libraries for data manipulation.
+
+```{r include=F}
+library(dplyr)
+```
+
+
+## Set-up 
+
+```{r}
+# set up a data frame
+my.df <- data.frame(port.name=c("Morro Bay","Moss Landing","Half Moon Bay"),latitude=c(35.37,36.804,37.503),longitude=c(-120.85,-121.7869,-122.4822))
+
+```
+
+### Filtering w/ dplyr
+
+Filtering with dplyr is done uisng the aptly named *filter()* method:
+
+```{r}
+my.df %>% filter(port.name=='Morro Bay')
+```
+
+The only thing that is somewhat funky about the dplyr environment is that operations are executed using the ```%>%``` operator. It's probably best not to overthing this operator at this point, just treat it as syntactic idiosyncracy.
+
+If you really want some depth of discussion on the pipe operator ```%>%``` I recommend [the pipes chapter in Hadley Wickham's R for Data Science ebook](https://r4ds.had.co.nz/pipes.html).
+
+### Creating Columns w/dplyr
+
+Creating new columns or derived fields is done in the dplyr enviroment using the *mutate()* method:
+
+```{r}
+# create a new column with the state abbreviation
+my.df <- my.df %>% mutate(state="CA")
+my.df
+
+```
+
+### Joining Data Frames w/dplyr
+
+```{r}
+zips <- data.frame(port.name=c('Morro Bay','Moss Landing','Half Moon Bay','Port Hueneme'),zip=c(93442,95039,94019,93043))
+
+# join these zip codes to the port data frame
+my.df <- my.df %>% inner_join(zips,by=c('port.name'))
+my.df
+```
+
+There are lots of different flavors of joining. You can read about all of them here:
+
+https://dplyr.tidyverse.org/reference/join.html
+
+The 2 flavors of joining that I use most often are:
+
+* inner_join: this join function returns only the observations that can be matched between both data sets
+* left_join: this join function returns all the observations from the original data frame and augments it with observations from the secondary data frame that match.
+
+An example of the left_join function:
+
+```{r}
+my.df <- data.frame(port.name=c("Morro Bay","Moss Landing","Half Moon Bay",port.name="Port Hueneme"),latitude=c(35.37,36.804,37.503,34.1478),longitude=c(-120.85,-121.7869,-122.4822,119.1951)) %>%
+      mutate(port.name=as.character(port.name))
+
+zips <- data.frame(port.name=c('Morro Bay','Moss Landing','Half Moon Bay','Astoria'),zip=c(93442,95039,94019,97103)) %>%
+      mutate(port.name=as.character(port.name))
+
+my.df <- my.df %>% left_join(zips,by=c('port.name'))
+my.df
+```
+
+
+Two things to note from the left_join above:
+
+1. Since Port Hueneme isn't in the "zips" data frame, when we join the two data frames there is an NA generated for that observation.
+
+2. The port of Astoria is in the "zips" data frame but not the "my.df" data frame. Using a left_join means that all the observations from the "my.df" data frame are preserved. It also means that new observations from the new data frame, the "zips" data frame, won't be added unless they match to an observation from the original.
+
+### Micscellaneous dplyr tips
+
+The dplyr environment uses the piping operator "%>%" to "chain" operations together. This allows many data frame operations to be combined together sequentially to form a "model-ready" data frame.
+
+In this case, an example will probably go futher than an explanation. Here is a "real world" example using West Coast commercial fish landings data. 
+
+The landings data are contained in the .csv file "ftl_sample.csv". These data contain "fish tickets" which are the commercial landings receipts indicating how much of each market category (species) and grade were sold, and the price at which they were sold. Each observation (row) in the data is a "line" of the fish ticket. For the present purposes it is sufficient to understand that each fish ticket may have several lines depending on how much of each different species was transacted.
+
+```{r}
+ftl_example <- read.csv(here('data/ftl_example.csv'))
+ftl_example
+```
+
+In this example, I'm also going to join these data with a separate data file containing detailed information on fishing vessels. 
+
+```{r warnings=F}
+vessel_info <- read.csv(here('data/vessel_info.csv'))
+vessel_info
+```
+
+1. filter the ftl_example data to include only California ports
+
+2. aggregate the ftl_example data so that there is only a single observation for each vessel
+
+3. join the aggregated ftl_data with the vessel_info data frame
+
+Here is how one could do this using Base R functions:
+```{r}
+#first subset the data frame to include only the California ports
+ftl2 <- ftl_example[ftl_example$port_code %in% c('PRN','MNT','ERK'),]
+
+# next aggregate the landed weight column by vessel id, date, management group, and port code
+ftl2 <- aggregate(ftl2$landed_weight_lbs,
+                by = list(ftl2$vessel_id, ftl2$landing_date,ftl2$management_group,
+                          ftl2$port_code),
+                FUN = sum)
+ftl2
+```
+
+```{r}
+# now give the new data frame more informative names
+names(ftl2) <- c('vessel_id','landing_date','management_group','port_code','landed_weight_lbs')
+ftl2
+```
+
+```{r}
+# finally, merge this data frame with the vessel info data frame
+merge(ftl2,vessel_info,by=c('vessel_id'))
+```
+
+The dplyr way to do this would be as follows:
+
+```{r}
+ftl <- read.csv(here('data/ftl_example.csv'))
+vessel_info <- read.csv(here('data/vessel_info.csv'))
+
+ftl <- ftl %>% filter(port_code %in% c("PRN","MNT","ERK")) %>%
+               group_by(vessel_id, landing_date, management_group, port_code) %>%
+               summarise(landed_weight_lbs=sum(landed_weight_lbs)) %>%
+               inner_join(vessel_info,by=c('vessel_id'))
+ftl
+```
+
+One thing to note here is that we get a warning message which is basically telling us that the "port_code" was dropped from the grouping structure following the ```summarise()``` aggregation. This is a "friendly" warning and a nice discussion of it appears [here](https://stackoverflow.com/questions/62140483/how-to-interpret-dplyr-message-summarise-regrouping-output-by-x-override). Basically, the ```summarise()``` method from ```dplyr``` has a ```.groups``` argument which defaults to ```drop_last```. This option can be changed if you like.
+
+
+I'm an advocate for using dplyr for data manipulation. I don't think there is anything necessarily wrong with using base R functions to massage data. I, personally, find:
+
+1. the dplyr syntax to be more intuitive and easier to remember
+
+2. the dplyr methods to behave more like how I would expect data opertors to behave.
+

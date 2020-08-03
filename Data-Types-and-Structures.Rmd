@@ -1,0 +1,443 @@
+---
+title: "Data-Types-and-Structures"
+author: "aaron mamula"
+date: "8/3/2020"
+output: html_document
+---
+
+# {.tabset .tabset-fade .tabset-pills}
+
+The previous lesson kind of jumped right into data analysis without much of the classic introductory material one usually sees like understanding data types and data structures. In this lesson I'm going to back things up some and try to present some of the more foundational blocks to doing data analysis with R.
+
+The caveat that applies here (and all subsequent lessons) is: these are just some nuggets that I think are important to understand based on my own experience using R for Social Science research. I don't claim any authority on "how to learn R programming" or "how to write elegant code." To the extent that I have anything valuable to offer it's just that I've trial-and-errored my way through a lot of different Social Science methods in R. 
+
+This lesson is meant to be a kernel of sorts, my interpretation of the most compact presentation of a set of skills that will allow you understand future (more complex) applications without too much hassle.
+
+## Check for Dependencies
+
+```{r include=F}
+# load all the necessary libraries before starting
+library(dplyr)
+library(reticulate)
+library(data.table)
+library(foreign)
+```
+
+## Working with Vectors and Lists
+
+### Vectors
+
+Vectors are probably the most important R data structure for data analysts to understand. Knowing how to put things into, get things out of, and alter the individual elements of vectors is one of the most important skills for R-ing. 
+
+Because vectors can hold a variety of different data types, one can construct vectors in a variety of ways. Here are 3 (there are hundreds more):
+
+```{r}
+# create a basic atomic vector containing the integers from 10 to 20
+x <- c(10:20)
+x
+```
+
+```{r}
+# create a vector of dates
+dates <- seq.Date(from = as.Date("2019-01-01"), to=as.Date("2019-01-03"), by="day")
+dates
+```
+
+```{r}
+# create a vector of letters
+a <- letters[1:11]
+a
+```
+
+We can retrieve important information about vectors (such as the data types contained within the vector or vector size) with some commonly-used vector methods:
+
+```{r}
+class(x)
+```
+
+```{r}
+class(dates)
+```
+
+```{r}
+class(a)
+```
+
+This tell us that ```x``` contains integer values while ```dates``` contains dates. There is an important summary method in R, ```str()```, that gives us information about the data types and structure of vectors:
+
+```{r}
+str(x)
+```
+
+As illustrated above, the ```str()``` method tells us 2 important things about the vector:
+
+1. it tells us the type of data contained in the vector (in this case *int* indicates integer values)
+2. it tells us the size/shape of the vector (in this case the [1:11] tell us that ```x``` is 1-dimensional with values from 1 to 11)
+
+Often times for data analysis we would like to find, and possibly extract, a particular element from a vector. For this, vector indexing comes in handy.
+
+```{r}
+# create a vector including integer values from 10 to 20
+x <- c(10:20)
+x
+```
+
+```{r}
+# check the number of "atoms" in the vector
+length(x)
+```
+
+```{r}
+# what is the first element in the vector?
+x[1]
+```
+
+```{r}
+# what is the last element in the vector?
+x[length(x)]
+```
+
+Note that what we did above is a general way to find the last element in the vector. In this case we know that the vector has 11 elements so we could retrieve just the last element by feeding that index position into the vector notation:
+
+```{r}
+x[11]
+```
+
+And just to really bring this home:
+
+```{r}
+x[11]==x[length(x)]
+```
+
+Vector indexing involves subsetting a vector by referencing integer positions within the vector. The typical case for this kind of activity is when there is a value or set of values that we would like to search a vector for. 
+
+One way to search for the index positions of the values you may want is with the *which()* function:
+
+```{r}
+which(x>12)
+```
+
+*which()* returns the index positions of the values in the vector satisfying the condition. If you nest these index values in the original vector, it will return the values associated with those index positions:
+
+```{r}
+x[which(x>12)]
+```
+
+It should be noted here that the *which()* function is not strictly necessary for the task of indexing through a vector:
+
+```{r}
+# note that the following inequality will be evaluated for each element in the vector
+x > 12
+```
+
+Note that the vector *x* has 11 elements so when we ask for ```x>12``` we get back 11 answers (a logical vector). We can nest this logical vector in the original vector and it will return the elements of the vector that meet the condition.
+
+```{r}
+# using a logical vector to index through a vector will return the values in the vector positions evaluated as "TRUE" 
+x[x>12]
+```
+
+If you are in the mood for a lengthy discussion about whether there are any circumstances under which one should use *which()* here is a long Stack Overflow thread:
+
+https://stackoverflow.com/questions/6918657/whats-the-use-of-which
+
+### Lists
+
+Sometimes we need to manipulate data that are stored in lists. Lists can be a little trickier to deal with but powerful once you get the hang of them. 
+
+
+```{r}
+my.list <- list('Ham',c(1:3),letters[1:5])
+my.list
+
+```
+
+First, note that the list object above has length 3:
+
+```{r}
+length(my.list)
+```
+
+But the second and third elements of the list are vectors of length 5. So, while there are 3 elements in the list, there are 5 elements in the 2nd element of the list. If we want to index through the elements of the character vector that makes up the 3rd list element we can provide the list element, then the element of the vector within the list as follows:
+
+```{r}
+my.list[[3]][3]
+```
+
+Remember that lists exist in order to hold on to many potentially dissimilar things. Lists can hold vectors but they are not themselves vectors so it doesn't really make sense to do somethign like this:
+
+```{r}
+new.list<- list(c(1:2),c(20:30),c(50:55))
+
+# uncomment this line to see the error...I have this commented out so that the document will "knit"
+#new.list[new.list>10]
+```
+
+If you really need to search the elements of a list here are somethings you can do:
+
+```{r}
+# you could coerce the elements of the list to a vector
+new.vector <- unlist(new.list)
+# then index the resulting vector
+new.vector[new.vector>10]
+```
+
+```{r}
+#you could search the individual list elements
+new.list[[2]][new.list[[2]]>10]
+```
+
+Finally, a more programatic way to do what I did above is to use R's *lapply()* method. *lapply()* applies a function to the elements in a list. In this case, it would look like:
+
+```{r}
+lapply(new.list,function(x){x[x>10]})
+```
+
+Using *lapply()* the results are returned as a new list.
+
+One more example of the *lapply()* method because its one that I use A LOT. 
+
+```{r}
+list.of.trolls <- list("Poppy","Branch","Guy Diamond","DJ Suki","Creek")
+lapply(list.of.trolls,toupper)
+```
+
+The function *toupper()* is a built-in function that does pretty much what it sounds like: converts a text string to all uppercase.
+
+## "Vectorization"
+
+One often hears/reads in R tutorials that R is naturally "vectorized." [Here is an external discussion](https://swcarpentry.github.io/r-novice-gapminder/09-vectorization/) on what that phrase means. [And here is another good one](https://bookdown.org/rdpeng/rprogdatascience/vectorized-operations.html).
+
+Vectorization means that R naturally applies operations to each element in a vector. Consider the following example of adding the number 2 to each element of a vector:
+
+```{r}
+# create a small integer vector
+x <- c(1:5)
+x
+# add 2 to each element in the vector
+x+2
+```
+
+This is somewhat distinct from the way operations are defined in other languages. For example, in Python the same task can be accomplished by iterating through the elements of a vector (fyi: I use list comprehension syntax below).
+
+```{python}
+# the reticulate package allows us to run python code in an .Rmd chunk if we use:
+#     ```{python} to declare the chunk
+
+# create a small numeric vector using python syntax (python calls them lists)
+python_vector = [1,2,3,4,5]
+print(python_vector)
+
+# if we try to add 2 to each element in python vector using the sytax using the following sytax it won't work:
+
+# python_vector + 2
+
+# In python we add 2 to each value in the vector/list by iterating through the values in the list...here I use pythons list comprehension syntax
+add_2 = [a+2 for a in python_vector]
+print(add_2)
+
+```
+
+The comparison above is a little bit of a straw man because the NumPy library available for Python allows for vectorized operations.
+
+## Working with Data Frames 
+
+### Filtering
+
+Indexing through a data frame is really similar to indexing through a vector. The only real difference is that data frames have 2 dimensions (rows and columns) so the syntax is slightly different:
+
+```{r}
+# set up a data frame
+my.df <- data.frame(port.name=c("Morro Bay","Moss Landing","Half Moon Bay"),latitude=c(35.37,36.804,37.503),longitude=c(-120.85,-121.7869,-122.4822))
+
+# print the first two rows of the data frame where latitude is greater than 36
+my.df[c(1,2),]
+
+```
+
+```{r}
+# print the first two rows of the data frame but only the port.name column
+my.df[c(1,2),1]
+```
+
+The same way we used conditionals to find certain values in a vector, we can filter a data frame by searching for values meeting a criterion. Suppose we wanted to filter our data frame to only include ports north of 36 degrees:
+
+```{r}
+ports.north <- my.df[my.df$latitude>36,]
+ports.north
+```
+
+### Adding to Data Frames
+
+Adding rows or columns to a data frame can be done in a few ways.
+
+Adding a new row, or rows, of data to an existing data frame can be done using the *rbind()* method:
+
+```{r}
+new.port <- data.frame(port.name="Port Hueneme",latitude=34.1478,longitude=-119.1951)
+my.df <- rbind(my.df,new.port)
+my.df
+```
+
+Similarly, adding a new column can be done using *cbind()*:
+
+```{r}
+county <- c('San Luis Obispo','San Benito','San Mateo','Ventura')
+my.df <- cbind(my.df,county)
+my.df
+```
+
+New columns can also be added to a data frame using the assignment operator:
+
+```{r}
+my.df$port_county <- paste(my.df$port.name,",",my.df$county,sep=" ")
+my.df
+```
+
+### Merging Data Frames
+
+R has a *merge()* method for joining two data frames. I haven't used it years. It's pretty straightforward and details on usage exist here:
+
+https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/merge
+
+I'm going to cover joining data frames in the next section on dplyr methods since I use the dplyr package pretty exclusively for data massaging type operations.
+
+## Data Operations w/dplyr
+
+[dplyr](https://dplyr.tidyverse.org/) is a data manipulation library. There are lots of reasons to use it and I think it's pretty uncontroversial to say it's one of the most popular data science packages available.  I use it almost exclusively for data manipulation because I find the syntax really intuitive.  
+
+There are also probably some good reasons not to use dplyr. However, everyone I know uses either the dplyr or data.table libraries for data manipulation.
+
+```{r include=F}
+library(dplyr)
+```
+
+### Filtering w/ dplyr
+
+Filtering with dplyr is done uisng the aptly named *filter()* method:
+
+```{r}
+my.df %>% filter(port.name=='Morro Bay')
+```
+
+The only thing that is somewhat funky about the dplyr environment is that operations are executed using the "%>%" operator. It's probably best not to overthing this operator at this point, just treat it as syntactic idiosyncracy.
+
+### Creating Columns w/dplyr
+
+Creating new columns or derived fields is done in the dplyr enviroment using the *mutate()* method:
+
+```{r}
+# create a new column with the state abbreviation
+my.df <- my.df %>% mutate(state="CA")
+my.df
+
+```
+
+### Joining Data Frames w/dplyr
+
+```{r}
+zips <- data.frame(port.name=c('Morro Bay','Moss Landing','Half Moon Bay','Port Hueneme'),zip=c(93442,95039,94019,93043))
+
+# join these zip codes to the port data frame
+my.df <- my.df %>% inner_join(zips,by=c('port.name'))
+my.df
+```
+
+There are lots of different flavors of joining. You can read about all of them here:
+
+https://dplyr.tidyverse.org/reference/join.html
+
+The 2 flavors of joining that I use most often are:
+
+* inner_join: this join function returns only the observations that can be matched between both data sets
+* left_join: this join function returns all the observations from the original data frame and augments it with observations from the secondary data frame that match.
+
+An example of the left_join function:
+
+```{r}
+my.df <- data.frame(port.name=c("Morro Bay","Moss Landing","Half Moon Bay",port.name="Port Hueneme"),latitude=c(35.37,36.804,37.503,34.1478),longitude=c(-120.85,-121.7869,-122.4822,119.1951)) %>%
+      mutate(port.name=as.character(port.name))
+
+zips <- data.frame(port.name=c('Morro Bay','Moss Landing','Half Moon Bay','Astoria'),zip=c(93442,95039,94019,97103)) %>%
+      mutate(port.name=as.character(port.name))
+
+my.df <- my.df %>% left_join(zips,by=c('port.name'))
+my.df
+```
+
+
+Two things to note from the left_join above:
+
+1. Since Port Hueneme isn't in the "zips" data frame, when we join the two data frames there is an NA generated for that observation.
+
+2. The port of Astoria is in the "zips" data frame but not the "my.df" data frame. Using a left_join means that all the observations from the "my.df" data frame are preserved. It also means that new observations from the new data frame, the "zips" data frame, won't be added unless they match to an observation from the original.
+
+### Micscellaneous dplyr tips
+
+The dplyr environment uses the piping operator "%>%" to "chain" operations together. This allows many data frame operations to be combined together sequentially to form a "model-ready" data frame.
+
+In this case, an example will probably go futher than an explanation. Here is a "real world" example using West Coast commercial fish landings data. 
+
+The landings data are contained in the .csv file "ftl_sample.csv". These data contain "fish tickets" which are the commercial landings receipts indicating how much of each market category (species) and grade were sold, and the price at which they were sold. Each observation (row) in the data is a "line" of the fish ticket. For the present purposes it is sufficient to understand that each fish ticket may have several lines depending on how much of each different species was transacted.
+
+```{r}
+ftl_example <- read.csv('ftl_example.csv')
+ftl_example
+```
+
+In this example, I'm also going to join these data with a separate data file containing detailed information on fishing vessels. 
+
+```{r warnings=F}
+vessel_info <- read.csv('vessel_info.csv')
+vessel_info
+```
+
+1. filter the ftl_example data to include only California ports
+
+2. aggregate the ftl_example data so that there is only a single observation for each vessel
+
+3. join the aggregated ftl_data with the vessel_info data frame
+
+Here is how one could do this using Base R functions:
+```{r}
+#first subset the data frame to include only the California ports
+ftl2 <- ftl_example[ftl_example$port_code %in% c('PRN','MNT','ERK'),]
+
+# next aggregate the landed weight column by vessel id, date, management group, and port code
+ftl2 <- aggregate(ftl2$landed_weight_lbs,
+                by = list(ftl2$vessel_id, ftl2$landing_date,ftl2$management_group,
+                          ftl2$port_code),
+                FUN = sum)
+ftl2
+```
+
+```{r}
+# now give the new data frame more informative names
+names(ftl2) <- c('vessel_id','landing_date','management_group','port_code','landed_weight_lbs')
+ftl2
+```
+
+```{r}
+# finally, merge this data frame with the vessel info data frame
+merge(ftl2,vessel_info,by=c('vessel_id'))
+```
+
+The dplyr way to do this would be as follows:
+
+```{r}
+ftl <- read.csv('ftl_example.csv')
+vessel_info <- read.csv('vessel_info.csv')
+
+ftl <- ftl %>% filter(port_code %in% c("PRN","MNT","ERK")) %>%
+               group_by(vessel_id, landing_date, management_group, port_code) %>%
+               summarise(landed_weight_lbs=sum(landed_weight_lbs)) %>%
+               inner_join(vessel_info,by=c('vessel_id'))
+ftl
+```
+
+I'm an advocate for using dplyr for data manipulation. I don't think there is anything necessarily wrong with using base R functions to massage data. I, personally, find:
+
+1. the dplyr syntax to be more intuitive and easier to remember
+
+2. the dplyr methods to behave more like how I would expect data opertors to behave.
+

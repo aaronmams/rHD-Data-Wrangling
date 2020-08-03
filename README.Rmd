@@ -1,0 +1,74 @@
+---
+title: "README"
+author: "aaron mamula"
+date: "8/3/2020"
+output: html_document
+---
+# {.tabset .tabset-fade .tabset-pills}
+
+This lesson has 2 overarching objectives:
+
+1. introduce new users to important R data types and data structures.
+2. provide sample code-flows illustrating the task of wrangling different raw data forms into analysis-friendly R data frames.
+
+## Instructions
+
+This lesson uses three .Rmd files contained in the project. The three .Rmd files are functionally independent and self-contained but the suggested order of operations (for anyone working through these lessons independently) is as follows: 
+
+1. ```Data-Types-and-Structures.Rmd```. 
+2. ```Data-Wrangling-with-Apply.Rmd```.
+3. ```Data-Wrangling-with-dplyr.Rmd```.
+
+## Contents {.tabset}
+
+### Code 
+
+All of the code for this lesson is embedded in the .Rmd files mentioned above.
+
+### Data {.tabset}
+
+This lesson comes equipped with the following "toy" data files:
+
+1. ```ftl_example.csv```
+2. ```vessel_info.csv```
+3. ```WorldBank_GPI_2000-2018.csv```
+
+#### ftl_example.csv
+
+This is .csv file that I created based loosely based on the structure of [fish ticket data](https://pacfin.psmfc.org/wp-content/uploads/2016/06/PacFIN_Comprehensive_Fish_Tickets.pdf) that is routinely used by fisheries scientists at the SWFSC and NWFSC.
+
+
+#### vessel_info.csv
+
+This is a .csv file that I created loosely based (very loosely) on the structure of the Coastguard Vessel Registry that I often access from PacFIN.
+
+While the sample .csv is laughably simple, it doesn't actually look that different from the Coastguard Registry that I frequently use to incorporate details (vessel length, gross weight, etc.) of commercial fishing vessels into my analysis.
+
+#### WorldBank_GPI_2000-2018.csv
+
+This is a file I created using the [World Bank Development Indicator's](https://databank.worldbank.org/reports.aspx?source=world-development-indicators#) online data query tool.These data contain the metric "School Enrollment, primary (gross), gender parity index", WDI Series Code "SE.ENR.PRIM.FM.ZS". A summary of the data series relevance as an indicator of development [is provided here](https://www.indexmundi.com/facts/indicators/SE.ENR.PRIM.FM.ZS)
+
+## Lesson Narrative {.tabset}
+
+### Data Types and Structures
+
+In the first lesson I provided almost no background on the stuff I called "data." This was by design in order to "hit the ground running." In this lesson I'm going to do my best to back things up, go a little slower, and try to explain some things I think are import to understand about how the R language organizes information.
+
+### Data Wrangling
+
+My intention is to keep this lesson short. My motivation for this abbreviated treatment is necessity. Social Scientists work with data from an incredibly wide range of sources and data are often organized in all sorts of weird ways. Since I can't possibly anticipate all the ways that you will need to trim or accessorize your data, I'm striving here for a very general introduction to a few libraries that make it easy to massage data.
+
+If I had to distill this lesson down to some recommendations, they would be:
+
+* "long" data are often easier to use than "wide" data ([Simon Ejdemyr lists 3 compelling reasons why long data are better](https://sejdemyr.github.io/r-tutorials/basics/wide-and-long/))
+* dplyr and tidyr have a lot of nice/user-friendly methods both for organzing data in "long" form and working with data in "long" form. 
+
+### Disclaimers
+
+This lesson is a little disjointed. Recognizing the difference between long-form and wide-form data, and knowing how to convert wide data into long data and vice versa is a most useful skill. Most social scientists have a natural affinity towards "panel" data which is naturally organized as long-form data. This preference has logistic benefits when working in R as many of the core operations of interest to data analysts are made considerabily easier with long-form data.
+
+The lesson subset on ```apply()``` functions is not one that I'm particularly emotionally connected to. However, I think it is widely accpeted that the ```apply()``` family of functions are an iconic part of R. These functions are like R's answers to loops for repetitive tasks.
+
+This may be TMI but I use the ```lapply()``` function a lot in my work. I don't really use the other ```apply()``` flavors very often. This is mostly because I work primarily with data frames and, when using data frames, there are lots of alternatives to ```apply()``` for executing repetitive tasks like transforming data values.  
+
+

@@ -1,0 +1,42 @@
+---
+title: "Data-Wrangling-Resources"
+author: "aaron mamula"
+date: "8/3/2020"
+output: html_document
+---
+# {.tabset .tabset-fade .tabset-pills}
+
+Here is a list of resources that I have curated on the topics of vectorization, data manipulation with dplyr and the tidyverse, and a few other assorted gems.
+
+## Vectorization
+
+1. [This is a great open resource from Alyssa Frazee](http://alyssafrazee.com/2014/01/29/vectorization.html) on "vectorization"
+
+2. [The Software Carpentry folks also have a cool lesson on "vectorization"](https://swcarpentry.github.io/r-novice-gapminder/09-vectorization/)
+
+## ```apply```
+
+1. [Nice Primer on Apply](https://ademos.people.uic.edu/Chapter4.html)
+
+## ```dplyr```
+
+1. [dplyr and "the grammar" of data manipulation](https://dplyr.tidyverse.org/)
+
+2. [A dplyr discussion from UBC's STAT 545 class](https://stat545.com/dplyr-intro.html). Side note: If you really want to geek-out on R-stuff you should definitely follow [Jenny Bryan on the Twitter](https://twitter.com/jennybryan?lang=en).
+
+## The Tidyverse
+
+[Hadley Wickham's Primer on Tidyr](https://blog.rstudio.com/2014/07/22/introducing-tidyr/)
+
+[The Tidyverse Cheat Sheet](https://tidyr.tidyverse.org/)
+
+## data.table
+
+[A data.table Introduction](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html)
+
+[More data.table practice](https://rpubs.com/kykimeng/intro-to-data-table)
+
+## Misc
+
+1. [WDI: An R Package for getting World Bank Development Indicator Data](https://www.r-project.org/nosvn/pandoc/WDI.html)
+

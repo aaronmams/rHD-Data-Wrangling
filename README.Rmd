@@ -2,8 +2,9 @@
 title: "README"
 author: "aaron mamula"
 date: "8/3/2020"
-output: html_document
+output: md_document
 ---
+
 # {.tabset .tabset-fade .tabset-pills}
 
 This lesson has 2 overarching objectives:
@@ -13,7 +14,7 @@ This lesson has 2 overarching objectives:
 
 ## Instructions
 
-This lesson uses several .Rmd files contained in the project. The three .Rmd files are functionally independent and self-contained but the suggested order of operations (for anyone working through these lessons independently) is as follows: 
+This lesson uses several .Rmd files contained in the project. The .Rmd files are functionally independent and self-contained but the suggested order of operations (for anyone working through these lessons independently) is as follows: 
 
 1. ```Data-Types-and-Structures.Rmd```. 
 2. ```Data-Manipulation-with-Apply.Rmd```.
@@ -26,6 +27,16 @@ This lesson uses several .Rmd files contained in the project. The three .Rmd fil
 ### Code 
 
 All of the code for this lesson is embedded in the .Rmd files mentioned above.
+
+1. ```Data-Types-and-Structures.Rmd``` explores three foundational R data types: vectors, lists, and data frames.
+
+2. ```Data-Manipulation-with-Apply.Rmd``` provides some examples of using the ```apply()``` family of functions for data manipulation.
+
+3. ```Data-Manipulation-with-dplyr.Rmd``` gives an introduction to the ```dplyr``` data manipulation package. This is an extremely popular and powerful R library for data manipulation. I am a big advocate for the dplyr approach to data manipulation.
+
+4. ```Wide-to-Long-Example.Rmd``` provides a reproducable example of converting wide-form data to long-form data in R using the ```tidyr``` package. Navigating between wide and long data is a common enough task in the empirical social sciences that I thought it warranted its own concise illustration.
+
+5. ```Resources.Rmd``` provides a curarated list of supplemental readings on the various data manipulations topics covered in this lesson.
 
 ### Data {.tabset}
 

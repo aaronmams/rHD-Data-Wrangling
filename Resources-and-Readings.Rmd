@@ -44,6 +44,10 @@ Here is a list of resources that I have curated on the topics of vectorization, 
 
 ## data.table
 
+I didn't really talk about the ```data.table``` package in this lesson. It is also a pretty popular R package for data wrangling. I know a few people who use it and are big advocates for ```data.table```. In my limited experience ```data.table``` handles large data sets a little better than the other options and I have used it on a few occassions where speed and ability to handle lots of data was important. 
+
+I recommend looking into it and being informed about it...but I can't provide a lot of code-support here because I'm not a regular users.
+
 [A data.table Introduction](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html)
 
 [More data.table practice](https://rpubs.com/kykimeng/intro-to-data-table)

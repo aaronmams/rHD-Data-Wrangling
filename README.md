@@ -4,6 +4,13 @@ This lesson has 2 overarching objectives:
 2.  provide sample code-flows illustrating the task of wrangling
     different raw data forms into analysis-friendly R data frames.
 
+This lesson comes with the following caveat: I use
+[dplyr](https://dplyr.tidyverse.org/) and other elements of R’s
+[tidyverse](https://www.tidyverse.org/) for data manipulation. This is a
+matter of preference and your preferences need not match mine. But I can
+only teach what I know…and, to the extent that I know anything about
+data manipulation worth sharing, it’s data manipulation with `dplyr`.
+
 Instructions
 ------------
 
@@ -13,8 +20,8 @@ order of operations (for anyone working through these lessons
 independently) is as follows:
 
 1.  `Data-Types-and-Structures.Rmd`.
-2.  `Data-Manipulation-with-Apply.Rmd`.
-3.  `Data-Manipulation-with-dplyr.Rmd`.
+2.  `Data-Manipulation-with-dplyr.Rmd`.
+3.  `Data-Manipulation-with-Apply.Rmd`.
 4.  `Wide-to-Long-Example.Rmd`
 5.  `Resources`
 
@@ -37,18 +44,18 @@ above.
     powerful R library for data manipulation. I am a big advocate for
     the dplyr approach to data manipulation.
 
-4.  `Wide-to-Long-Example.Rmd` provides a reproducable example of
+4.  `Wide-to-Long-Example.Rmd` provides a reproducible example of
     converting wide-form data to long-form data in R using the `tidyr`
     package. Navigating between wide and long data is a common enough
     task in the empirical social sciences that I thought it warranted
     its own concise illustration.
 
-5.  `Resources.Rmd` provides a curarated list of supplemental readings
-    on the various data manipulations topics covered in this lesson.
+5.  `Resources.Rmd` provides a curated list of supplemental readings on
+    the various data manipulations topics covered in this lesson.
 
 ### Data
 
-This lesson comes equipped with the following "toy" data files:
+This lesson comes equipped with the following “toy” data files:
 
 1.  `ftl_example.csv`
 2.  `vessel_info.csv`
@@ -67,7 +74,7 @@ This is a .csv file that I created loosely based (very loosely) on the
 structure of the Coastguard Vessel Registry that I often access from
 PacFIN.
 
-While the sample .csv is laughably simple, it doesn't actually look that
+While the sample .csv is laughably simple, it doesn’t actually look that
 different from the Coastguard Registry that I frequently use to
 incorporate details (vessel length, gross weight, etc.) of commercial
 fishing vessels into my analysis.
@@ -75,10 +82,10 @@ fishing vessels into my analysis.
 #### WorldBank\_GPI\_2000-2018.csv
 
 This is a file I created using the [World Bank Development
-Indicator's](https://databank.worldbank.org/reports.aspx?source=world-development-indicators#)
-online data query tool.These data contain the metric "School Enrollment,
-primary (gross), gender parity index", WDI Series Code
-"SE.ENR.PRIM.FM.ZS". A summary of the data series relevance as an
+Indicator’s](https://databank.worldbank.org/reports.aspx?source=world-development-indicators#)
+online data query tool.These data contain the metric “School Enrollment,
+primary (gross), gender parity index”, WDI Series Code
+“SE.ENR.PRIM.FM.ZS”. A summary of the data series relevance as an
 indicator of development [is provided
 here](https://www.indexmundi.com/facts/indicators/SE.ENR.PRIM.FM.ZS)
 
@@ -88,8 +95,8 @@ Lesson Narrative
 ### Data Types and Structures
 
 In the first lesson I provided almost no background on the stuff I
-called "data." This was by design in order to "hit the ground running."
-In this lesson I'm going to do my best to back things up, go a little
+called “data.” This was by design in order to “hit the ground running.”
+In this lesson I’m going to do my best to back things up, go a little
 slower, and try to explain some things I think are import to understand
 about how the R language organizes information.
 
@@ -98,37 +105,37 @@ about how the R language organizes information.
 My intention is to keep this lesson short. My motivation for this
 abbreviated treatment is necessity. Social Scientists work with data
 from an incredibly wide range of sources and data are often organized in
-all sorts of weird ways. Since I can't possibly anticipate all the ways
-that you will need to trim or accessorize your data, I'm striving here
+all sorts of weird ways. Since I can’t possibly anticipate all the ways
+that you will need to trim or accessorize your data, I’m striving here
 for a very general introduction to a few libraries that make it easy to
 massage data.
 
 If I had to distill this lesson down to some recommendations, they would
 be:
 
--   "long" data are often easier to use than "wide" data ([Simon Ejdemyr
+-   “long” data are often easier to use than “wide” data ([Simon Ejdemyr
     lists 3 compelling reasons why long data are
     better](https://sejdemyr.github.io/r-tutorials/basics/wide-and-long/))
 -   dplyr and tidyr have a lot of nice/user-friendly methods both for
-    organzing data in "long" form and working with data in "long" form.
+    organzing data in “long” form and working with data in “long” form.
 
 ### Disclaimers
 
 This lesson is a little disjointed. Recognizing the difference between
 long-form and wide-form data, and knowing how to convert wide data into
 long data and vice versa is a most useful skill. Most social scientists
-have a natural affinity towards "panel" data which is naturally
+have a natural affinity towards “panel” data which is naturally
 organized as long-form data. This preference has logistic benefits when
 working in R as many of the core operations of interest to data analysts
 are made considerabily easier with long-form data.
 
-The lesson subset on `apply()` functions is not one that I'm
+The lesson subset on `apply()` functions is not one that I’m
 particularly emotionally connected to. However, I think it is widely
 accpeted that the `apply()` family of functions are an iconic part of R.
-These functions are like R's answers to loops for repetitive tasks.
+These functions are like R’s answers to loops for repetitive tasks.
 
 This may be TMI but I use the `lapply()` function a lot in my work. I
-don't really use the other `apply()` flavors very often. This is mostly
+don’t really use the other `apply()` flavors very often. This is mostly
 because I work primarily with data frames and, when using data frames,
 there are lots of alternatives to `apply()` for executing repetitive
 tasks like transforming data values.
